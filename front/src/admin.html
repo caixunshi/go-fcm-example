@@ -1,0 +1,49 @@
+<html xmlns="http://www.w3.org/1999/html">
+<title>Firebase Messaging Demo</title>
+<body>
+<h1>FCM</h1>
+<input type="button" value="query" onclick="listaccount()"/>
+<span>当前在线用户列表：</span>
+<div id="info"></div>
+<div style="margin-top: 30px">
+    accountId: <input id="accountId"/>
+    title: <input id="title"/>
+    body: <input id="body"/>
+    url: <input id="url"/>
+    <input type="button" value="send" onclick="send()"/>
+</div>
+</body>
+<script>
+    function listaccount() {
+        // 注册token到后台
+        fetch("http://localhost:8090/list", {
+            method: "GET",
+        }).then(function (resp) {
+            return resp.json();
+        }).then(function (json) {
+            var html = ""
+            Object.keys(json).forEach(function (key) {
+                html += key + " : " + json[key] + "</br>"
+            });
+            console.log(json);
+            document.getElementById("info").innerHTML = html
+        })
+    }
+
+    function send() {
+        var accountId = document.getElementById("accountId").value
+        var title = document.getElementById("title").value
+        var body = document.getElementById("body").value
+        var url = document.getElementById("url").value
+        resp = fetch("http://localhost:8090/send", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-type": 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({"accountId": accountId, "title": title, "body": body, "url": url}),
+        })
+        console.log(resp);
+    }
+</script>
+</html>

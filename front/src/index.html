@@ -1,0 +1,63 @@
+<html xmlns="http://www.w3.org/1999/html">
+<body>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+<h1>FCM</h1>
+account: <input id="accountId"/>
+<input type="button" value="login" onclick="login()"/>
+<div id="info"></div>
+<div id="msg" style="font-size:64px;color:red">0</div>
+</body>
+<script>
+    var accessToken = ""
+
+    // 定义配置文件
+    var firebaseConfig = {
+        apiKey: "AIzaSyAUVTaipaExXUTGGc7e-A3gUiA3Q8i7O8Y",
+        authDomain: "shipment-portal-1f1b3.firebaseapp.com",
+        projectId: "shipment-portal-1f1b3",
+        storageBucket: "shipment-portal-1f1b3.appspot.com",
+        messagingSenderId: "333922912996",
+        appId: "1:333922912996:web:18467f5642e6fba00efaf1",
+        measurementId: "G-5HNY007WZW"
+    };
+    function login() {
+        var accountId = document.getElementById("accountId").value
+        // 注册token到后台
+        document.getElementById("info").innerHTML = "token: " + accessToken
+        resp = fetch("http://localhost:8090/accessToken", {
+            method: "POST",
+            mode:"cors",
+            headers: {
+                "Content-type": 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({"accountId": accountId, "token": accessToken}),
+        })
+        console.log(resp);
+    }
+    window.onload  = function () {
+        // 生成token
+        firebase.initializeApp(firebaseConfig);
+        var messaging = firebase.messaging();
+        messaging.requestPermission()
+            .then(function () {
+                return messaging.getToken();
+            })
+            .then(function (token) {
+                accessToken = token
+            })
+            .catch(function (err) {
+                console.log('Unable to get permission to notify.', err);
+            });
+
+        // 注册监听事件
+        messaging.onMessage(function (payload) {
+            // 更新列表消息数量
+            console.log('Message received. ', payload);
+            var msg = document.getElementById("msg").innerHTML
+            document.getElementById("msg").innerHTML = Number(msg) + 1
+        });
+    }
+
+</script>
+</html>
